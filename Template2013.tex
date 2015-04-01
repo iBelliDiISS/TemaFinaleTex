@@ -9,34 +9,16 @@
 
 \usepackage{url}
 \usepackage{xspace}
+\usepackage{amsmath}
+\usepackage{pdfpages}
+
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
 \usepackage{manifest}
-
+\usepackage{textcomp}
 \makeatother
 
-%%%%%%%
- \newif\ifpdf
- \ifx\pdfoutput\undefined
- \pdffalse % we are not running PDFLaTeX
- \else
- \pdfoutput=1 % we are running PDFLaTeX
- \pdftrue
- \fi
-%%%%%%%
- \ifpdf
- \usepackage[pdftex]{graphicx}
- \else
- \usepackage{graphicx}
- \fi
-%%%%%%%%%%%%%%%
- \ifpdf
- \DeclareGraphicsExtensions{.pdf, .jpg, .tif}
- \else
- \DeclareGraphicsExtensions{.eps, .jpg}
- \fi
-%%%%%%%%%%%%%%%
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata}
 
@@ -104,8 +86,8 @@
 
 \begin{document}
 
-\title{Software Engineering\\
- process report template}
+\title{Button Led System\\
+ process report}
 
 %%% \author{\xauthA \and \xauthB}
 \author{\student}
@@ -134,6 +116,7 @@
 \section{Vision}
 Non esiste codice senza progetto, non esiste progetto senza analisi del problema e non esiste problema senza requisiti.\\
 Non c'è codice senza test.\\
+Button e Led sono metafore per input e output.\\
 Mantenere disaccopiati logica realizzativa del progetto e testing.\\
 Individuare diverse tipologie di test da applicare in diversi momenti della realizzazione:
 \begin{itemize}
@@ -144,11 +127,25 @@ Individuare diverse tipologie di test da applicare in diversi momenti della real
 \item User Acceptance Testing (feedback utente, black box)
 \end{itemize}
 Utilizzare approccio top-down in fase di progettazione e bottom-up in fase di implementazione (zooming).\\
+Zooming: sviluppo del progetto senza curarsi delle tecnologie che verranno utilizzate per implementarlo.\\
+Il Button Led System deve essere una applicazione compatibile con IoT.\\
+Rendere l'applicazione Button Led System funzionante a prescindere dalla posizione, dalla tecnologia d'implementazione e dalla tecnologia utilizzata per la comunicazione (ICT).\\
+Realizzare il progetto seguendo le linee guida del framework SCRUM.\\
+Sempre nell'ambito delle linee guida SCRUM, all'interno dello sprint backlog, devono essere individuate funzionalit\`a utili all'intera software house, che verranno (nello sprint successivo) fattorizzate e rese disponibili come libreria.
+Realizzazione di una entit\`a esterna che esegue la configurazione dell'intero Button Led System in modo autonomo e configurabile, in modo da non delegare ai componenti il compito della configurazione.\\
+Abbattere i costi per un prodotto di qualit\`a: raggiunti i requisiti minimi di funzionalit\`a continuare a investire risorse nel progetto per aumentarne la qualit\`a e abbatterne i costi.
 \labelsec{Vision}
 %===========================================================================
 
 %===========================================================================
 \section{Goals}
+Implementare ogni componente del ButtonLedSystem (button, led e controller) su piattaforma:
+\begin{itemize}
+	\item Android
+	\item Raspberry
+	\item Arduino
+	\item Java SE
+\end{itemize}
 \labelsec{Goals}
 %===========================================================================
 
@@ -171,38 +168,39 @@ Design and build a ButtonLed software system in which a Led is turned on and off
 
 \subsection{(Domain)model}
 \labelssec{(Domain)model}
-LED:\\
+LED:
 Struttura: entità atomica, passiva.\\
 Interazione: espone le operazioni void turnOn, void turnOff e boolean getState. Queste operazioni sono anche metodi nell'accezione OOP.\\
-Comportamento: alla creazione un LED è spento. L'esecuzione dell'operazione turnOn accende il Led, l'esecuzione dell'operazione turnOff lo spegne. L'operazione getState ritorna lo stato del Led (false -> spento, true -> acceso).\\
-Viene esplicitato dal seguente automa a stati finiti:\\
-\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=3cm]
-\node[initial,state] (OFF)      {$OFF$};
-\node[state]         (ON) [right of=OFF]  {$ON$};
+Comportamento: alla creazione un LED è spento. L'esecuzione dell'operazione turnOn accende il Led, l'esecuzione dell'operazione turnOff lo spegne. L'operazione getState ritorna lo stato del Led (false \textrightarrow spento, true \textrightarrow acceso).\\
+Viene esplicitato dal seguente automa a stati finiti:
+\begin{center}
+	\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=3cm]
+	\node[initial,state] (OFF)      {$OFF$};
+	\node[state]         (ON) [right of=OFF]  {$ON$};
 
 
-\path[->] (OFF)  edge [loop above] node {turnOff} (OFF)
-				 edge              node {turnOn} (ON)
-		  (ON)   edge [bend left]  node {turnOff} (OFF)
-				 edge [loop above] node {turnOn} (ON);
-\end{tikzpicture}\\
+	\path[->] (OFF)  edge [loop above] node {turnOff} (OFF)
+					 edge              node {turnOn} (ON)
+			  (ON)   edge [bend left]  node {turnOff} (OFF)
+					 edge [loop above] node {turnOn} (ON);
+	\end{tikzpicture}
+\end{center}
 BUTTON:\\
 Struttura: entità atomica, attiva.\\
 Interazione: una sola operazione per conoscere lo stato, boolean getState\.\
 Comportamento: alla creazione un button è released.\\
 Viene esplicitato dal seguente automa a stati finiti:\\
-\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=4cm]
-
-\node[initial,state] (RELEASED)      {$RELEASED$};
-\node[state]         (PRESSED) [right of=RELEASED]  {$PRESSED$};
-
-
-\path[->] (RELEASED)  edge [loop above] node {release} (RELEASED)
-					  edge              node {press} (PRESSED)
-		  (PRESSED)   edge [bend left]  node {release} (RELEASED)
-					  edge [loop above] node {press} (PRESSED);
-\end{tikzpicture}\\
-Button e Led non sono correlati -> il button non ha alcuna conoscenza del led e viceversa, per realizzare il sistema è necessaria un'entità coordinatrice.\\
+\begin{center}
+	\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=4cm]
+		\node[initial,state] (RELEASED)      {$RELEASED$};
+		\node[state]         (PRESSED) [right of=RELEASED]  {$PRESSED$};
+		\path[->] (RELEASED)  edge [loop above] node {release} (RELEASED)
+							  edge              node {press} (PRESSED)
+				  (PRESSED)   edge [bend left]  node {release} (RELEASED)
+							  edge [loop above] node {press} (PRESSED);
+	\end{tikzpicture}
+\end{center}
+Button e Led non sono correlati \textrightarrow il button non ha alcuna conoscenza del led e viceversa, per realizzare il sistema è necessaria un'entità coordinatrice.\\
 \subsection{Test plan}
 \labelsec{Test plan}
 LED:\\
@@ -213,11 +211,25 @@ BUTTON:\\
 %===========================================================================
 \section{Problem analysis}
 \labelsec{ProblemAnalysis}
+Per risolvere il problema di scalabilit\`a e mantenere le entit\`a disaccoppiate faremo utilizzo del pattern \texttt{Observer}: il Button espone un'interfaccia tramite la quale le entit\`a possono registrarsi.\\
+Dividiamo i componenti dell'architettura in Attivi e Passivi.\\
+I componenti Passivi generalmente generano eventi, i componenti Attivi possono ricevere comandi. Per la realizzazione di tale funzionalit\`a verr\`a utilizzato il pattern \texttt{Command}.\\
+\`E inoltre necessario accordarsi su un linguaggio di interazione, il quale necessita di uno standard di comunicazione. Lo standard di comunicazione sar\`a indispensabile per Integration Test.
 %===========================================================================
 \subsection{Logic architecture}
-\subsection{Abstraction gap}
-\subsection{Risk analysis}
+L'architettura logica \`e esplicitata in figura.
+\begin{center}
+\includegraphics{img/graphs/LogicArchitecture.pdf}
+\end{center}
+Per rendere i componenti indipendenti utilizzeremo il pattern \texttt{Bridge} come esplicitato in figura.
+\begin{center}
+\includegraphics{img/graphs/Bridge.pdf}
+\end{center}
 
+\subsection{Abstraction gap}
+Deve essere possibile che il Button Led System funzioni a prescindere dall'ubicazione dei suoi componenti e dalla tecnologia con cui sono realizzati. Per questo motivo, sono state create le interfacce \texttt{IButton} e \texttt{ILed}
+\subsection{Risk analysis}
+Nell'interfaccia del Button, oltre al metodo accessor \texttt{isPressed} deve essere presente anche il metodo \texttt{addObserver}, ci\`o \`e risultato necessario dai colloqui con il committente (durante l'analisi dei requisiti).
 %===========================================================================
 \section{Work plan}
 \labelsec{wplan}
@@ -230,6 +242,9 @@ BUTTON:\\
 
 \subsection{Structure}
 \subsection{Interaction}
+\begin{center}
+\includegraphics{img/graphs/Interaction.pdf}
+\end{center}
 \subsection{Behavior}
 
 %===========================================================================
@@ -251,25 +266,19 @@ BUTTON:\\
 \section{Maintenance}
 \labelsec{Maintenance}
 %===========================================================================
-\newpage
-See \cite{natMol09} until page 11 (\texttt{CMM}) and pages 96-105.
 
 %===========================================================================
 \section{Information about the author}
 \labelsec{Author}
 %===========================================================================
-
+\newpage
 \vskip.5cm
 %%% \begin{figure}
 \begin{tabular}{ | c |  }
-\hline
-  % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
-  Photo of the author 
-  \\
-\hline
-   \includegraphics[scale = 0.15]{img/foto.jpg}
-  \\
-\hline
+	\hline
+	Photo of the Author\\
+   	\includegraphics[scale = 0.15]{img/foto.jpg}\\
+	\hline
 \end{tabular}
  
 \appendix
