@@ -16,6 +16,7 @@
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
 \usepackage{manifest}
+\usepackage{listings}
 \usepackage{textcomp}
 \makeatother
 
@@ -207,8 +208,12 @@ Button e Led non sono correlati \textrightarrow il button non ha alcuna conoscen
 LED:\\
 Il test plan (di tipo unit) deve verificare che inizialmente getState ritorni il valore false.
 Dopo aver eseguito l'operazione turnOn, getState deve restituire il valore true.\\
+\lstinputlisting[language=Java]{include/tests/LedTest.java}
 BUTTON:\\
 \'{E} necessaria una nuova entità (DebuggableButton) per poter modificare lo stato del button, tale entità esporra le operazioni, void press, void release.
+\lstinputlisting[language=Java]{include/tests/ButtonTest.java}
+BUTTONLEDSYSTEM:\\
+\lstinputlisting[language=Java]{include/tests/ButtonLedTest.java}
 %===========================================================================
 \section{Problem analysis}
 \labelsec{ProblemAnalysis}
@@ -237,7 +242,8 @@ Nell'interfaccia del Button, oltre al metodo accessor \texttt{isPressed} deve es
 %===========================================================================
 \section{Project}
 \labelsec{Project}
-L'architettura progettuale \`e esplicitata in figura.
+L'architettura progettuale \`e esplicitata in figura.\\
+\url{https://github.com/iBelliDiISS/ButtonLedJava}
 \begin{center}
 \includegraphics[scale=0.6]{img/graphs/Progettazione_BLS.pdf}
 \end{center}
@@ -249,7 +255,6 @@ L'architettura progettuale \`e esplicitata in figura.
 \includegraphics{img/graphs/Interaction.pdf}
 \end{center}
 \subsection{Behavior}
-
 %===========================================================================
 \section{Implementation}
 \labelsec{Implementation}
@@ -271,10 +276,14 @@ L'architettura progettuale \`e esplicitata in figura.
 %===========================================================================
 
 %===========================================================================
+\newpage
+\appendix
+\section{Codice}
 \section{Information about the author}
 \labelsec{Author}
 %===========================================================================
-\newpage
+\appendix
+%===========================================================================
 \vskip.5cm
 %%% \begin{figure}
 \begin{tabular}{ | c |  }
