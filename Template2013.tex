@@ -139,6 +139,7 @@ Abbattere i costi per un prodotto di qualit\`a: raggiunti i requisiti minimi di 
 
 %===========================================================================
 \section{Goals}
+
 Implementare ogni componente del ButtonLedSystem (button, led e controller) su piattaforma:
 \begin{itemize}
 	\item Android
@@ -187,7 +188,7 @@ Viene esplicitato dal seguente automa a stati finiti:
 \end{center}
 BUTTON:\\
 Struttura: entità atomica, attiva.\\
-Interazione: una sola operazione per conoscere lo stato, boolean getState\.\
+Interazione: una sola operazione per conoscere lo stato, boolean getState.\\
 Comportamento: alla creazione un button è released.\\
 Viene esplicitato dal seguente automa a stati finiti:\\
 \begin{center}
@@ -214,20 +215,18 @@ BUTTON:\\
 Per risolvere il problema di scalabilit\`a e mantenere le entit\`a disaccoppiate faremo utilizzo del pattern \texttt{Observer}: il Button espone un'interfaccia tramite la quale le entit\`a possono registrarsi.\\
 Dividiamo i componenti dell'architettura in Attivi e Passivi.\\
 I componenti Passivi generalmente generano eventi, i componenti Attivi possono ricevere comandi. Per la realizzazione di tale funzionalit\`a verr\`a utilizzato il pattern \texttt{Command}.\\
-\`E inoltre necessario accordarsi su un linguaggio di interazione, il quale necessita di uno standard di comunicazione. Lo standard di comunicazione sar\`a indispensabile per Integration Test.
+%\`E inoltre necessario accordarsi su un linguaggio di interazione, il quale necessita di uno standard di comunicazione. Lo standard di comunicazione sar\`a indispensabile per Integration Test.
 %===========================================================================
 \subsection{Logic architecture}
 L'architettura logica \`e esplicitata in figura.
 \begin{center}
-\includegraphics{img/graphs/LogicArchitecture.pdf}
+\includegraphics{img/graphs/Analisi_BLS.pdf}
 \end{center}
-Per rendere i componenti indipendenti utilizzeremo il pattern \texttt{Bridge} come esplicitato in figura.
 \begin{center}
-\includegraphics{img/graphs/Bridge.pdf}
 \end{center}
 
 \subsection{Abstraction gap}
-Deve essere possibile che il Button Led System funzioni a prescindere dall'ubicazione dei suoi componenti e dalla tecnologia con cui sono realizzati. Per questo motivo, sono state create le interfacce \texttt{IButton} e \texttt{ILed}
+
 \subsection{Risk analysis}
 Nell'interfaccia del Button, oltre al metodo accessor \texttt{isPressed} deve essere presente anche il metodo \texttt{addObserver}, ci\`o \`e risultato necessario dai colloqui con il committente (durante l'analisi dei requisiti).
 %===========================================================================
@@ -238,6 +237,10 @@ Nell'interfaccia del Button, oltre al metodo accessor \texttt{isPressed} deve es
 %===========================================================================
 \section{Project}
 \labelsec{Project}
+L'architettura progettuale \`e esplicitata in figura.
+\begin{center}
+\includegraphics[scale=0.6]{img/graphs/Progettazione_BLS.pdf}
+\end{center}
 %===========================================================================
 
 \subsection{Structure}
