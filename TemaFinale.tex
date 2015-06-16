@@ -70,8 +70,8 @@
 \newcommand{\ssecsname}{\subsectionsname}
 \newcommand{\onpagename}{on page}
 
-\newcommand{\student}{Zanotti Andrea}
-\newcommand{\studentEmail}{andrea.zanotti9}
+\newcommand{\student}{Gruppo 3 Aimi Niccol\'o, Gallegati Mattia, Murgia Antonio, Zanotti Andrea }
+\newcommand{\studentEmail}{niccolo.aimi@studio.unibo.it; mattia.gallegati2@studio.unibo.it; antonio.murgia2@studio.unibo.it; andrea.zanotti9@studio.unibo.it}
 \newcommand{\xfaculty}{II Faculty of Engineering}
 \newcommand{\xunibo}{Alma Mater Studiorum -- University of Bologna}
 \newcommand{\xaddrBO}{viale Risorgimento 2}
@@ -95,7 +95,7 @@
 
 \institute{%
 %%%  \xunibo\\\xaddrCE, \xcityCE\\\email{\{nameA.studentA, nameB.studentB\}@studio.unibo.it}
-  \xunibo\\\xaddrBO, \xcityBO\\\email\ {\studentEmail}@studio.unibo.it
+  \xunibo\\\xaddrBO, \xcityBO\\\email\ {\studentEmail}
 }
 
 \maketitle
@@ -115,27 +115,17 @@
 
 %===========================================================================
 \section{Vision}
-Non esiste codice senza progetto, non esiste progetto senza analisi del problema e non esiste problema senza requisiti.\\
-Non c'è codice senza test.\\
-Button e Led sono metafore per input e output.\\
-Mantenere disaccopiati logica realizzativa del progetto e testing.\\
-Individuare diverse tipologie di test da applicare in diversi momenti della realizzazione:
-\begin{itemize}
-\item Unit testing (singolo componente, white box)
-\item Integration Testing (di interazione, white box)
-\item Functional Testing (sull'intero sistema, black box)
-\item Stress Load Testing (performance, black box)
-\item User Acceptance Testing (feedback utente, black box)
-\end{itemize}
-Utilizzare approccio top-down in fase di progettazione e bottom-up in fase di implementazione (zooming).\\
-Zooming: sviluppo del progetto senza curarsi delle tecnologie che verranno utilizzate per implementarlo.\\
-Il Button Led System deve essere una applicazione compatibile con IoT.\\
-Rendere l'applicazione Button Led System funzionante a prescindere dalla posizione, dalla tecnologia d'implementazione e dalla tecnologia utilizzata per la comunicazione (ICT).\\
-Realizzare il progetto seguendo le linee guida del framework SCRUM.\\
-Sempre nell'ambito delle linee guida SCRUM, all'interno dello sprint backlog, devono essere individuate funzionalit\`a utili all'intera software house, che verranno (nello sprint successivo) fattorizzate e rese disponibili come libreria.
-Realizzazione di una entit\`a esterna che esegue la configurazione dell'intero Button Led System in modo autonomo e configurabile, in modo da non delegare ai componenti il compito della configurazione.\\
-Abbattere i costi per un prodotto di qualit\`a: raggiunti i requisiti minimi di funzionalit\`a continuare a investire risorse nel progetto per aumentarne la qualit\`a e abbatterne i costi.
 \labelsec{Vision}
+Here we're collecting some visions that will inspire the development of this project and of software in general:\\
+\begin{itemize}
+	\item There's no code without project, there's no project without problem analysis and there's no problem without requirements;
+	\item There's no code without tests. That means that tests must be developed before the development of the software product;
+	\item The team that develops the tests should be different from the one who will realize the project;
+	\item We should use a top down approach during the development phase and bottom-up approach during the implementation phase;
+	\item We should always check the existence of prior projects, trends or patterns regarding the technological domain we are facing. If does exist something we should study it, not only to take advantage of it during the development but also to recognize its limits and to purpose some innovative approach coming from different technological domains;
+	\item The development of the project should be technology agnostic;
+	\item We should find or create a formal language able to describe the results of the problem analysis. It should be similar to spoken language. This language could take advantage of different programming paradigms (functional, declarative and so on) and different programming models (actor model, message passing model and so on). This language should not be tied to any technology implementation. There should be one or more parsers/compilers for this language that will generate source code for a specific platform. This generated code should be used as the skeleton of the real product.
+\end{itemize}
 %===========================================================================
 
 %===========================================================================
@@ -154,7 +144,18 @@ Implementare ogni componente del ButtonLedSystem (button, led e controller) su p
 %===========================================================================
 \section{Requirements}
 \labelsec{Requirements}
-Design and build a ButtonLed software system in which a Led is turned on and off each time a Button is pressed (by an human user). The system should run on a single support, e.g. a conventional PC, a Raspberry Pi or Arduino.
+Design and build a (prototype of a) software system that, with reference to a differential drive robot (called from now on robot):
+\begin{itemize}
+	\item allows a user to select between a 'learning phase' and a 'autonomous phase'
+    during the learning phase, the user can send a sequence of move commands (e.g. forward, backward, left right, stop) to the robot. The robot must not only execute each command but it must also record the whole sequence of commands until the user decides to terminate the learning phase;
+    \item after the termination of the learning phase, the user can tell the robot to enter the autonomous phase in a 'direct' or in a 'reverse' mode. During this phase the robot executes in autonomous way the sequence of moves it has learned, by complementing each move (e.g. forward->backward) if the selected mode is reverse;
+    \item during the autonomous phase, the robot must be able to execute (as soon as possible) a stop command sent by the user.
+\end{itemize}
+After the development of this prototype, consider the possibility to enhance the functional capabilities of the robot, by allowing it:
+\begin{itemize}
+	\item to perceive an obstacle during the autonomous phase and, once the obstacle is detected, to execute some alternative behaviour (in term of moves).
+\end{itemize}
+
 %===========================================================================
 
  
@@ -170,50 +171,71 @@ Design and build a ButtonLed software system in which a Led is turned on and off
 
 \subsection{(Domain)model}
 \labelssec{(Domain)model}
-LED:
-Struttura: entità atomica, passiva.\\
-Interazione: espone le operazioni void turnOn, void turnOff e boolean getState. Queste operazioni sono anche metodi nell'accezione OOP.\\
-Comportamento: alla creazione un LED è spento. L'esecuzione dell'operazione turnOn accende il Led, l'esecuzione dell'operazione turnOff lo spegne. L'operazione getState ritorna lo stato del Led (false \textrightarrow spento, true \textrightarrow acceso).\\
-Viene esplicitato dal seguente automa a stati finiti:
+\subsubsection{ROBOT}
+\paragraph{Structure}
+We consider the robot as a reactive and atomic entity.
+\paragraph{Interaction}
+\paragraph{Behaviour}
+The behaviour of the robot is described with this FSM:\\
 \begin{center}
 	\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=3cm]
-	\node[initial,state] (OFF)      {$OFF$};
-	\node[state]         (ON) [right of=OFF]  {$ON$};
-
-
-	\path[->] (OFF)  edge [loop above] node {turnOff} (OFF)
-					 edge              node {turnOn} (ON)
-			  (ON)   edge [bend left]  node {turnOff} (OFF)
-					 edge [loop above] node {turnOn} (ON);
+	\node[state,initial] (S) {S};
+	\node[state](SLP) {SLP};
+	\node[state](RLP) {RLP};
+	\node[state](LLP) {LLP};
+	\node[state](FLP) {FLP};
+	\node[state](BLP) {BLP};
+	\node[state](RAP) {RAP};
+	\node[state](DAP) {DAP};
+	\node[state](OPD)  {OPD};
+	\node[state](OPR)  {OPR};
+	\path[->] (S)   edge node [loop above]  {startLearning} (SLP)
+				    edge node  [loop above]  {reverseAuto}	 (RAP)
+				    edge node  [loop above]  {directAuto}	 (DAP);
+			  (SLP) edge node [loop above]  {stop} (SLP)
+			  		edge node [loop above]  {backward} (BLP)
+					edge node [loop above]  {forward} (FLP)
+					edge node [loop above]  {right} (RLP)
+					edge node [loop above]  {left} (LLP)
+					edge node [loop above]  {terminate} (I)
+			  (RLP) edge node [loop above]  {stop} (SLP)
+			  		edge node [loop above]  {backward} (BLP)
+					edge node [loop above]  {forward} (FLP)
+					edge node [loop above]  {right} (RLP)
+					edge node [loop above]  {left} (LLP)
+					edge node [loop above]  {terminate} (I)
+			  (LLP) edge node [loop above]  {stop} (SLP)
+			  		edge node [loop above]  {backward} (BLP)
+					edge node [loop above]  {forward} (FLP)
+					edge node [loop above]  {right} (RLP)
+					edge node [loop above]  {left} (LLP)
+					edge node [loop above]  {terminate} (I)
+			  (FLP) edge node [loop above]  {stop} (SLP)
+			  		edge node [loop above] {backward} (BLP)
+					edge node [loop above] {forward} (FLP)
+					edge node [loop above] {right} (RLP)
+					edge node [loop above] {left} (LLP)
+					edge node [loop above] {terminate} (I)
+			  (BLP) edge node [loop above] {stop} (SLP)
+			  		edge node [loop above] {backward} (BLP)
+					edge node [loop above] {forward} (FLP)
+					edge node [loop above] {right} (RLP)
+					edge node [loop above] {left} (LLP)
+					edge node [loop above] {terminate} (I)
+			  (RAP) edge node [loop above] {end} (S)
+			  		edge node [loop above] {stop} (S)
+			  		edge node [loop above] {obstacleDetected} (OPR)
+			  (DAP) edge node [loop above] {end} (S)
+			  		edge node [loop above] {stop} (S)
+			  		edge node [loop above] {obstacleDetected} (OPD)
+			  (OPR) edge node [loop above] {stop} (S)
+			  		edge node [loop above] {resume} 
+			  (OPD) edge node [loop above] {stop} (S)
+			  		edge node [loop above] {resume}
 	\end{tikzpicture}
 \end{center}
-BUTTON:\\
-Struttura: entità atomica, attiva.\\
-Interazione: una sola operazione per conoscere lo stato, boolean getState.\\
-Comportamento: alla creazione un button è released.\\
-Viene esplicitato dal seguente automa a stati finiti:\\
-\begin{center}
-	\begin{tikzpicture}[>=stealth',shorten >=1pt,auto,node distance=4cm]
-		\node[initial,state] (RELEASED)      {$RELEASED$};
-		\node[state]         (PRESSED) [right of=RELEASED]  {$PRESSED$};
-		\path[->] (RELEASED)  edge [loop above] node {release} (RELEASED)
-							  edge              node {press} (PRESSED)
-				  (PRESSED)   edge [bend left]  node {release} (RELEASED)
-							  edge [loop above] node {press} (PRESSED);
-	\end{tikzpicture}
-\end{center}
-Button e Led non sono correlati \textrightarrow il button non ha alcuna conoscenza del led e viceversa, per realizzare il sistema è necessaria un'entità coordinatrice.\\
 \subsection{Test plan}
 \labelsec{Test plan}
-LED:\\
-Il test plan (di tipo unit) deve verificare che inizialmente getState ritorni il valore false.
-Dopo aver eseguito l'operazione turnOn, getState deve restituire il valore true.\\
-\lstinputlisting[language=Java]{include/tests/LedTest.java}
-BUTTON:\\
-\'{E} necessaria una nuova entità (DebuggableButton) per poter modificare lo stato del button, tale entità esporra le operazioni, void press, void release.
-\lstinputlisting[language=Java]{include/tests/ButtonTest.java}
-BUTTONLEDSYSTEM:\\
-\lstinputlisting[language=Java]{include/tests/ButtonLedTest.java}
 %===========================================================================
 \section{Problem analysis}
 \labelsec{ProblemAnalysis}
