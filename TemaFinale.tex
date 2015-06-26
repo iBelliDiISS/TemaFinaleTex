@@ -214,7 +214,21 @@ To mantain our code well developed, scalable, efficient and mantainable, we will
 \subsection{Abstraction gap}
 We discovered that our unique tool in Java is procedure calls communication, so with the OO paradigm we can't realize a modular communication where entities are completely independent. We need a new way to let our components interact.
 In agreement with our vision, we understand that the best way to overcome this problem is to develop a new software infrastructure that will be more useful than Java paradigms.
-This infrastructure will be used not only in this project, but every future developed process that will have the same needs.
+This infrastructure will be used not only in this project, but every future developed process that will have the same needs.\\
+Our platform must reach some main goals: 
+\begin{itemize}
+\item Model driven programming in order to generate useful code starting from some formal rappresentation of our model (QA file). 
+\item Message based communication in order to transfer information in asynchronous or synchronous way. 
+\item A new formal executing entity that must be able to:\\ 
+1)Execute plans of actions.\\
+2) Receive message from other entities.\\ 
+3) Store information in a private queue in order to receive all the messages (Message Based). 
+\end{itemize}
+We want to be on top of the distribution of our system, in order to reach that goal we can think that every entity lives in a context. Every context contains one or more entities that can use easy forms of communication without paying remote communication costs. They can also communicate from a context to another using remote communication based on message passing.
+In order to introduce a new form of communication that is not strictly point to point we can introduce a new concept : Events.\\
+Events are a form of asynchronous communication that is not point to point. In our system our entities can declare to be interested in an event, when that event will be emitted the entities must react in some way.
+We introduce also a new behavior for our entities: the FSM. If an entity is modeled as a FSM it will have different State configurations, every state is connected to other states with its own logic, it could be event driven or not.
+We also need to introduce asynchronous actions. Asynchronous actions are operations that need a considerable time to be executed, their execution can be made in a blocking or non blocking manner. Instead of managing them with callback programming we decide to make actions realiably interrupted by selected events and to handle those events with chosen routines. Those routines have to specify if after their execution the previous asynchronous action must be resumed or stopped.
 \subsection{Logic architecture}
 L'architettura logica \`e esplicitata in figura.
 \begin{center}
