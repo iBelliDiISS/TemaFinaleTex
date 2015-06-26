@@ -123,6 +123,13 @@ Here we're collecting some visions that will inspire the development of this pro
 	\item There's no code without documentation;
 	\item The team that develops the tests should be different from the one who will realize the project;
 	\item We should use a top down approach during the development phase and bottom-up approach during the implementation phase;
+	\item Zooming? Trying to get closer..
+		We should look at things initially from a far point of view like a black box and then trying to get closer to the details of the system, white box.
+	\item Any sufficiently advanced technology is indistinguishable from magic.
+	\item Develop the code in an IOT prospective using the ICT principles.
+	\item Create valuable software using less time and resource possible in order to optimize software development process (factorization).
+	\item A feature does not exist unless a test validates that it functions.
+	\item Software entities should be open for extension but closed for modification.
 	\item We should always check the existence of prior projects, trends or patterns regarding the technological domain we are facing. If does exist something we should study it, not only to take advantage of it during the development but also to recognize its limits and to purpose some innovative approach coming from different technological domains;
 	\item The development of the project should be technology agnostic;
 	\item We should find or create a formal language able to describe the results of the problem analysis. It should be similar to spoken language. This language could take advantage of different programming paradigms (functional, declarative and so on) and different programming models (actor model, message passing model and so on). This language should not be tied to any technology implementation. There should be one or more parsers/compilers for this language that will generate source code for a specific platform. This generated code should be used as the skeleton of the real product.
@@ -158,6 +165,7 @@ After the development of this prototype, consider the possibility to enhance the
 \labelsec{ReqAnalysis}
 %===========================================================================
 \subsection{Use cases}
+creo con visio omarino con tutti gli ovali con le possibilità
 \labelssec{UseCases}
 
 \subsection{Scenarios}
@@ -187,15 +195,20 @@ The behaviour of the remote is described with this FSM:\\
    	\includegraphics[width=2cm]{img/fsmRemoteRequirementAnalysis.png}\\
 \end{center}
 \subsection{Test plan}
+Test sui piani del robot e eventi remote
 \labelsec{Test plan}
 %===========================================================================
 \section{Problem analysis}
 \labelsec{ProblemAnalysis}
-Per risolvere il problema di scalabilit\`a e mantenere le entit\`a disaccoppiate faremo utilizzo del pattern \texttt{Observer}: il Button espone un'interfaccia tramite la quale le entit\`a possono registrarsi.\\
-Dividiamo i componenti dell'architettura in Attivi e Passivi.\\
-I componenti Passivi generalmente generano eventi, i componenti Attivi possono ricevere comandi. Per la realizzazione di tale funzionalit\`a verr\`a utilizzato il pattern \texttt{Command}.\\
-%\`E inoltre necessario accordarsi su un linguaggio di interazione, il quale necessita di uno standard di comunicazione. Lo standard di comunicazione sar\`a indispensabile per Integration Test.
+Our technological hypothesis is JAVA and Object Oriented Programming. We will show that we need to develop a new infrastructure because the only features offered by the programming language chosen are not sufficient.  
+To mantain our code well developed, scalable, efficient and mantainable, we will use the most known development patterns.
+%
+\`E inoltre necessario accordarsi su un linguaggio di interazione, il quale necessita di uno standard di comunicazione. Lo standard di comunicazione sar\`a indispensabile per Integration Test.
 %===========================================================================
+\subsection{Abstraction gap}
+We discovered that our unique tool in Java is procedure calls communication, so with the OO paradigm we can't realize a modular communication where entities are completely independent. We need a new way to let our components interact.
+In agreement with our vision, we understand that the best way to overcome this problem is to develop a new software infrastructure that will be more useful than Java paradigms.
+This infrastructure will be used not only in this project, but every future developed process that will have the same needs.
 \subsection{Logic architecture}
 L'architettura logica \`e esplicitata in figura.
 \begin{center}
@@ -204,8 +217,6 @@ L'architettura logica \`e esplicitata in figura.
 \begin{center}
 
 \end{center}
-
-\subsection{Abstraction gap}
 
 \subsection{Risk analysis}
 Nell'interfaccia del Button, oltre al metodo accessor \texttt{isPressed} deve essere presente anche il metodo \texttt{addObserver}, ci\`o \`e risultato necessario dai colloqui con il committente (durante l'analisi dei requisiti).
@@ -256,11 +267,11 @@ L'architettura progettuale \`e esplicitata in figura.\\
 
 \labelsec{Discussion}
 %===========================================================================
-_discutere dell'evento nel caso sia generato dal nulla o da altro
-_dire come rappresentarlo visto che non possiamo farlo in uml
-_introduzione del sistema ad attori rispetto a java
-_problema se in analisi dei requisiti parlare dell'indipendenza dalla tecnologia
-_cambiamento dell'fsm del remote in fase successiva
+discutere dell'evento nel caso sia generato dal nulla o da altro
+dire come rappresentarlo visto che non possiamo farlo in uml
+introduzione del sistema ad attori rispetto a java
+problema se in analisi dei requisiti parlare dell'indipendenza dalla tecnologia
+cambiamento dell'fsm del remote in fase successiva
 %===========================================================================
 \newpage
 \appendix
