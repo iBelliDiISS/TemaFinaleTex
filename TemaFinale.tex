@@ -125,7 +125,6 @@ Here we're collecting some visions that will inspire the development of this pro
 \begin{itemize}
 	\item There's no code without project, there's no project without problem analysis and there's no problem without requirements;
 	\item There's no code without tests. That means that tests must be developed before the development of the software product;
-	\item There's no code without documentation;
 	\item The team that develops the tests should be different from the one who will realize the project;
 	\item We should use a top down approach during the development phase and bottom-up approach during the implementation phase;
 	\item Zooming? Trying to get closer..
@@ -288,25 +287,22 @@ Context  ctxRobot ip [ host="localhost" port=8037 ]
  
 Context  ctxRemote ip [ host="localhost" port=8038 ]
 
+EventHandler planChangedHandler for planChanged;
+
 QActor qaRobot context ctxRobot {
 	Plan init normal 
 		println("Robot hello");
 		[!! start] getActivationEvent ev
-		//delay time(100000) react event startLearning -> learning or event startAutonomous -> autonomous
 		
 	Plan learning
 		println("learning phase");
 		[!! moveOrEnd] dummyRobotMove
-		// react event move -> learning or event stopLearning -> init
-		//[!! moveOrStop]
-		//dummyRobotMove react event move -> reactToMove or event stopLearning -> reactToStopLearning;
-		//dummyrobotmove è una mossa di movimento e aggiungere la regola in java
-		//repeatPlan 1000000
+		//dummyrobotmove è una mossa di movimento
+		// e aggiungere la regola in java
 	
 	
 	Plan autonomous
 		println("Autonomous phase")
-		//delay time(100000) react event directAutonomous -> direct or event reverseAutonomous -> reverse
 		
 	Plan obstacle
 		println("Obstacle phase");
@@ -327,9 +323,9 @@ The only remarkable risk in this development process is that the platform we wil
 \section{Work plan}
 \labelsec{wplan}
 Our team is composed by four members Aimi Niccol\'o , Gallegati Mattia, Murgia Antonio e Zanotti Andrea. Each of them has its own abilities. We decided to split the work between them relying  on the personal experience of each member.\\
-Aimi Niccol\'o : Senior model analyst, he will take care of the ?Requirement Analysis? and ?Problem Analysis? (with Gallegati).\\
-Gallegati Mattia: Senior IT consultant will take care of ?Problem Analysis? and of filling in the abstraction gap. \\
-Murgia: Senior code developer will take care of the ?Implementation? process and graphical interface realization.\\
+Aimi Niccol\'o : Senior model analyst, he will take care of the Requirement Analysis and Problem Analysis (with Gallegati).\\
+Gallegati Mattia: Senior IT consultant will take care of Problem Analysis and of filling in the abstraction gap. \\
+Murgia: Senior code developer will take care of the Implementation process and graphical interface realization.\\
 Zanotti: Senior IT developer will take care of the Tests Plans, Tests implementation and Mantainance process.
 In order to keep the team cohesive every part of the development process will be led by the designed manager but every member of the team will take part to three daily meetings (duration : 30 min) where everyone will discuss shortly the progress of its work and will ask other team member opinions about some topics.\\
 The reason why chose this kind of approach is that we believe that every member can look at the problem with its ?own eyes? and although the little experience in the other development phase can still express some interesting ideas for that phase that will lead to rapid solution of the problems.
@@ -338,16 +334,16 @@ The reason why chose this kind of approach is that we believe that every member 
 %===========================================================================
 \section{Project}
 \labelsec{Project}
-L'architettura progettuale \`e esplicitata in figura.\\
-\url{https://github.com/iBelliDiISS/ButtonLedJava}
-QaRobot
+Project architecture of the QaRobot is shown in the figure below:
 \begin{center}
 \includegraphics[width=12.5cm]{img/QaRobot.png}
 \end{center}
-QaRemote
+We extended the Planned class offered by the platform to embed robot functionalities realizing the PlannedRobotActor, we used the Builder pattern to instantiate the Robot basic object to issue commands to an implementation of the robot (Mock or Real robot). We also overloaded the switchToPlan, suspendWork and continueWork of QActorPlanned in order to emit an event every time a plan is changed.  
+Project architecture of the QaRemote is shown in the figure below:
 \begin{center}
 \includegraphics[width=12.5cm]{img/QaRemote.png}
 \end{center}
+In remote implementation we used Observer pattern to let the remote be aware of the state of the robot in order to configure the GUI to show the right buttons.
 %===========================================================================
 
 \subsection{Structure}
@@ -359,16 +355,55 @@ According to the defined abstraction that led to our platform the model structur
 \subsection{Behavior}
 Taking advantage of the definitions of plans formalized during the abstraction gap chapter, we can realize a software artifact that is exactly the FSM formalized during the analysis step.\\
 Regarding the Remote we realized that having a unresponsive remote (like the one of a Television) would be restrictive, so we realized a responsive GUI that enables only the commands permitted in that phase. To do that we modeled the Remote as a FSM that reacts to the state change of the robot.
+\begin{center}
+	\includegraphics[width=13cm]{img/fsmRemoteProject.png}
+\end{center}
 %===========================================================================
 \section{Implementation}
+The GUI part of the remote is implemented as a web page and the interaction between the client browser and the remote is realized by web socket technology. In this way the lightweight and the frequent interactions doesn't pay the cost of a new connection every time a button is pressed and the communication has not to be initiated by the client (despite of AJAX that needs to create a new connection every time).
 \labelsec{Implementation}
 %===========================================================================
 
 %===========================================================================
 \section{Testing}
 \labelsec{testing}
-%===========================================================================
+As previously said we cannot really test the functionalities of the robot via code, but we can send command and observe the behaviour. We can also send to the robot the events he must react to and analyze the state where he is. So for example we can emit the event StartLearning and look if the robot is in the right state.
 
+%===========================================================================
+Also the Platform must be checked, Unit testing is already developed inside the QActor Platform.
+Here we report an example of functional and interaction testing of the developed system:\\
+\begin{lstlisting}
+public class InteractionTest {
+  public static void main(String[] args){
+    emit(Start.prefix,Start.body(Start.Phases.LEARNING));
+	execDummyActionForGuardWait( "PlanChanged" );
+	IEventItem ev = this.getPlanActivationEvent();
+	assert(ev.getMsg().equals(PlanChanged.body(Plans.LEARNINGPLAN)));
+		
+	emit(MoveOrEnd.prefix,MoveOrEnd.body(MoveOrEnd.Movements.FORWARD));
+	emit(MoveOrEnd.prefix,MoveOrEnd.body(MoveOrEnd.Movements.LEFT));
+	emit(MoveOrEnd.prefix,MoveOrEnd.body(MoveOrEnd.Movements.BACKWARD));
+	emit(MoveOrEnd.prefix,MoveOrEnd.body(MoveOrEnd.Movements.ENDLEARNING));
+	execDummyActionForGuardWait( "PlanChanged" );
+	IEventItem ev = this.getPlanActivationEvent();
+	assert(ev.getMsg().equals(PlanChanged.body(Plans.INITPLAN)));
+		
+	emit(Start.prefix,Start.body(Start.Phases.AUTONOMOUS));
+	execDummyActionForGuardWait( "PlanChanged" );
+	IEventItem ev = this.getPlanActivationEvent();
+	assert(ev.getMsg().equals(PlanChanged.body(Plans.AUTONOMOUSPLAN)));
+		
+	emit(Mode.prefix,Mode.body(Modes.DIRECT));
+	execDummyActionForGuardWait( "PlanChanged" );
+	IEventItem ev = this.getPlanActivationEvent();
+	assert(ev.getMsg().equals(PlanChanged.body(Plans.DIRECTPLAN)));
+		
+	execDummyActionForGuardWait( "PlanChanged" );
+	IEventItem ev = this.getPlanActivationEvent();
+	assert(ev.getMsg().equals(PlanChanged.body(Plans.INIT)));
+  }
+}
+\end{lstlisting}
 %===========================================================================
 \section{Deployment}
 \labelsec{Deployment}
@@ -390,20 +425,9 @@ In order to do that we added a new event to our DSL file (from now on .qa  file)
 %===========================================================================
 
 %===========================================================================
-\section{Discussion}
-\paragraph{Requirement analysis}
-
-\labelsec{Discussion}
-%===========================================================================
-discutere dell'evento nel caso sia generato dal nulla o da altro
-dire come rappresentarlo visto che non possiamo farlo in uml
-introduzione del sistema ad attori rispetto a java
-problema se in analisi dei requisiti parlare dell'indipendenza dalla tecnologia
-cambiamento dell'fsm del remote in fase successiva
-%===========================================================================
 \newpage
 \appendix
-\section{Codice}cl
+
 \section{Information about the author}
 \labelsec{Author}
 %===========================================================================
@@ -411,10 +435,19 @@ cambiamento dell'fsm del remote in fase successiva
 %===========================================================================
 \vskip.5cm
 %%% \begin{figure}
-\begin{tabular}{ | c |  }
+\begin{tabular}{ | c | }
 	\hline
-	Photo of the Author\\
-   	\includegraphics[width=5cm]{img/zano.jpg}\\
+	Photo of Aimi Niccol\'o\\
+   	\includegraphics[width=5cm]{img/nanna.jpg}\\
+	\hline
+	Photo of Gallegati Mattia\\
+	\includegraphics[width=5cm]{img/tia.jpg}\\
+	\hline
+	Photo of Murgia Antonio\\
+	\includegraphics[width=5cm]{img/pug.jpg}\\
+	\hline
+	Photo of Zanotti Andrea\\
+	\includegraphics[width=5cm]{img/zano.jpg}\\
 	\hline
 \end{tabular}
  
